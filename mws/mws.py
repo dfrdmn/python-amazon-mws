@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import hmac
 import re
+import six
 from time import gmtime, strftime
 
 from requests import request
@@ -206,7 +207,10 @@ class MWS(object):
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
 
-            data = response.content
+            if six.PY2:
+                data = response.content
+            else:
+                data = response.content.decode()
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
@@ -218,7 +222,7 @@ class MWS(object):
                     parsed_response = DictWrapper(response.text, rootkey)
 
             except XMLError:
-                parsed_response = DataWrapper(data, response.headers)
+                parsed_response = DataWrapper(response.content, response.headers)
 
         except HTTPError as e:
             error = MWSError(str(e.response.text))
