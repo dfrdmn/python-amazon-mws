@@ -7,6 +7,7 @@ import datetime
 import hashlib
 import hmac
 import re
+import six
 import warnings
 
 from requests import request
