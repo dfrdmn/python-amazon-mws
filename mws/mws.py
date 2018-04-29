@@ -243,7 +243,10 @@ class MWS(object):
             if six.PY2:
                 data = response.content
             else:
-                data = response.content.decode()
+                try:
+                    data = response.content.decode()
+                except UnicodeDecodeError:
+                    data = response.content
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
